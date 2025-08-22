@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+        </linearGradient>
+    </defs>
+    <rect width="192" height="192" rx="28.799999999999997" fill="url(#grad)"/>
+    <g transform="translate(96, 96)">
+        <!-- Barra central -->
+        <rect x="-48" y="-5.76" width="96" height="11.52" fill="white"/>
+        <!-- Pesas izquierda -->
+        <rect x="-67.19999999999999" y="-28.799999999999997" width="19.200000000000003" height="57.599999999999994" fill="white"/>
+        <rect x="-86.4" y="-19.200000000000003" width="19.200000000000003" height="38.400000000000006" fill="white"/>
+        <!-- Pesas derecha -->
+        <rect x="48" y="-28.799999999999997" width="19.200000000000003" height="57.599999999999994" fill="white"/>
+        <rect x="67.19999999999999" y="-19.200000000000003" width="19.200000000000003" height="38.400000000000006" fill="white"/>
+        <text x="0" y="67.19999999999999" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="15.36" font-weight="bold">GYMAPP</text>
+    </g>
+</svg>
