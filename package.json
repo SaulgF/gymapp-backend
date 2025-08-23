@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "dev:host": "vite --host",
     "build": "vite build",
     "build:prod": "vite build && node prepare-production.mjs",
@@ -12,7 +11,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare-hosting": "node prepare-production.mjs",
-    "configure-gym": "node configure-subfolder.mjs gym"
+    "configure-gym": "node configure-subfolder.mjs gym",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "dependencies": {
     "axios": "^1.11.0",
