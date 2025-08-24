@@ -117,18 +117,19 @@ const createEntrenamiento = async (req, res) => {
       return res.status(404).json({ message: 'Rutina no encontrada' })
     }
 
-    // Crear entrenamiento
+    // Formatear fecha_inicio como YYYY-MM-DD para MySQL DATE
+    const fechaMysql = fecha_inicio ? fecha_inicio.slice(0, 10) : new Date().toISOString().slice(0, 10);
     const [result] = await pool.execute(
       'INSERT INTO entrenamientos (usuario_id, rutina_id, fecha, fecha_inicio) VALUES (?, ?, ?, ?)',
-      [userId, rutina_id, fecha_inicio, fecha_inicio]
+      [userId, rutina_id, fechaMysql, fechaMysql]
     )
 
     const entrenamiento = {
       id: result.insertId,
       usuario_id: userId,
       rutina_id: parseInt(rutina_id),
-      fecha: fecha_inicio,
-      fecha_inicio,
+      fecha: fechaMysql,
+      fecha_inicio: fechaMysql,
       fecha_fin: null,
       nota_general: null
     }
