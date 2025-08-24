@@ -98,7 +98,9 @@ const getEntrenamientoById = async (req, res) => {
 // Crear nuevo entrenamiento
 const createEntrenamiento = async (req, res) => {
   try {
-    const { rutina_id, fecha_inicio } = req.body
+  const { rutina_id, fecha_inicio } = req.body
+  // Formatear fecha_inicio como YYYY-MM-DD para MySQL DATE
+  const fechaMysql = fecha_inicio ? new Date(fecha_inicio).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
     const userId = req.user.id
 
     console.log('Creating entrenamiento with:', { rutina_id, fecha_inicio, userId })
@@ -120,15 +122,15 @@ const createEntrenamiento = async (req, res) => {
     // Crear entrenamiento
     const [result] = await pool.execute(
       'INSERT INTO entrenamientos (usuario_id, rutina_id, fecha, fecha_inicio) VALUES (?, ?, ?, ?)',
-      [userId, rutina_id, fecha_inicio, fecha_inicio]
+      [userId, rutina_id, fechaMysql, fechaMysql]
     )
 
     const entrenamiento = {
       id: result.insertId,
       usuario_id: userId,
       rutina_id: parseInt(rutina_id),
-      fecha: fecha_inicio,
-      fecha_inicio,
+      fecha: fechaMysql,
+      fecha_inicio: fechaMysql,
       fecha_fin: null,
       nota_general: null
     }
