@@ -1,7 +1,7 @@
 ﻿import axios from 'axios'
 
 // URL base de la API Node.js (Railway o local)
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE_URL = 'https://profound-acceptance-production.up.railway.app/api'
 
 // Crear instancia de axios
 const api = axios.create({

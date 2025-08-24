@@ -4,7 +4,7 @@ const webpush = require('web-push');
 
 // Configurar VAPID
 webpush.setVapidDetails(
-  'mailto:tuemail@dominio.com',
+  'mailto:saul.gf@icloud.com',
   process.env.VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );

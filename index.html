@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/gym/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="GymApp - Tu entrenador personal para gestionar entrenamientos y rutinas de gimnasio" />
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="GymApp" />
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="192x192" href="/gym/icons/icon-192x192.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="192x192" href="/gym/icons/icon-192x192.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="512x512" href="/gym/icons/icon-512x512.svg" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/gym/manifest.json" />
+    
+    <title>GymApp - Tu entrenador personal</title>
+  </head>
+  <body class="bg-gray-900 text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Script para limpiar caché en desarrollo -->
+    <script>
+      // Limpiar Service Worker y caché en desarrollo
+      if ('serviceWorker' in navigator && 'caches' in window) {
+        // Desregistrar Service Workers existentes
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          registrations.forEach(registration => {
+            console.log('Limpiando Service Worker:', registration.scope);
+            registration.unregister();
+          });
+        });
+        
+        // Limpiar todas las cachés
+        caches.keys().then(cacheNames => {
+          cacheNames.forEach(cacheName => {
+            console.log('Limpiando caché:', cacheName);
+            caches.delete(cacheName);
+          });
+        });
+      }
+    </script>
+    
+    <!-- PWA Service Worker - DESACTIVADO TEMPORALMENTE PARA DESARROLLO -->
+    <!--
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/gym/sw.js')
+            .then(() => console.log('SW registered'))
+            .catch(() => console.log('SW registration failed'));
+        });
+      }
+    </script>
+    -->
+  </body>
+</html>

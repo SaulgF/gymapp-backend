@@ -30,44 +30,92 @@ const IniciarEntrenamiento = () => {
   // Datos del entrenamiento
   const [detallesEntrenamiento, setDetallesEntrenamiento] = useState([])
   const [notaGeneral, setNotaGeneral] = useState('')
+  
+  // Wake Lock para mantener pantalla activa
+  const [wakeLock, setWakeLock] = useState(null)
 
   useEffect(() => {
     fetchData()
+    // Solicitar wake lock al cargar el componente
+    requestWakeLock()
+    
+    // Cleanup al desmontar
+    return () => {
+      releaseWakeLock()
+    }
   }, [id])
+  
+  // Funciones de Wake Lock
+  const requestWakeLock = async () => {
+    try {
+      if ('wakeLock' in navigator) {
+        const lock = await navigator.wakeLock.request('screen')
+        setWakeLock(lock)
+        console.log('Wake lock activado - pantalla se mantendrá activa')
+      }
+    } catch (err) {
+      console.error('Wake lock falló:', err)
+    }
+  }
+  
+  const releaseWakeLock = () => {
+    if (wakeLock) {
+      wakeLock.release()
+      setWakeLock(null)
+      console.log('Wake lock liberado')
+    }
+  }
+
+  // Escuchar mensajes del service worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data.action === 'timerUpdate') {
+          setTimeLeft(event.data.timeLeft)
+        }
+        if (event.data.action === 'timerFinished') {
+          setTimerActive(false)
+          // Vibración en móviles
+          if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200])
+          }
+          // Enviar notificación push adicional
+          (async () => {
+            try {
+              await api.post('/push/notify', {
+                title: '¡Descanso terminado!',
+                body: 'Es hora de continuar con tu siguiente ejercicio.'
+              });
+            } catch (err) {
+              console.error('Error enviando push:', err);
+            }
+          })();
+        }
+      })
+    }
+  }, [])
 
   useEffect(() => {
-    let interval = null
-    if (timerActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(timeLeft - 1)
-      }, 1000)
-    } else if (timeLeft === 0 && timerActive) {
-      setTimerActive(false)
-      // Notificación local cuando el timer termina
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('¡Descanso terminado!', {
-          body: 'Es hora de continuar con el siguiente set',
-          icon: '/vite.svg'
-        })
-      }
-      // Notificación push (PWA/iPhone)
-      (async () => {
-        try {
-          await api.post('/push/notify', {
-            title: '¡Descanso terminado!',
-            body: 'Es hora de continuar con tu siguiente ejercicio.'
-          });
-        } catch (err) {
-          console.error('Error enviando push:', err);
-        }
-      })();
-      // Vibración en móviles
-      if ('vibrate' in navigator) {
-        navigator.vibrate([200, 100, 200])
+    // Ya no necesitamos este interval, el service worker maneja el timer
+    return () => {
+      // Detener timer en service worker al desmontar
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          action: 'stopTimer'
+        });
       }
     }
-    return () => clearInterval(interval)
-  }, [timerActive, timeLeft])
+  }, [])
+
+  // Función para iniciar timer en service worker
+  const startServiceWorkerTimer = (seconds) => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        action: 'startTimer',
+        duration: seconds
+      });
+    }
+  }
 
   // Solicitar permisos de notificación al cargar
   useEffect(() => {
@@ -130,16 +178,30 @@ const IniciarEntrenamiento = () => {
     setTimeLeft(seconds)
     setInitialTime(seconds) // Guardar tiempo inicial
     setTimerActive(true)
+    // Iniciar timer en service worker
+    startServiceWorkerTimer(seconds)
   }
 
   const pauseTimer = () => {
     setTimerActive(false)
+    // Detener timer en service worker
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        action: 'stopTimer'
+      });
+    }
   }
 
   const resetTimer = () => {
     setTimerActive(false)
     setTimeLeft(0)
     setInitialTime(0) // Reset tiempo inicial
+    // Detener timer en service worker
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        action: 'stopTimer'
+      });
+    }
   }
 
   const handleCompletarSerie = async () => {
