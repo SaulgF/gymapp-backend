@@ -4,13 +4,7 @@ const cors = require('cors')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 
-// Cargar variables de entorno solo en desarrollo
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
-  console.log('Variables de entorno cargadas desde .env (desarrollo)');
-} else {
-  console.log('Variables de entorno cargadas desde Railway Dashboard (producción)');
-}
+// ...eliminado dotenv, solo se usan variables del entorno del sistema o Railway...
 
 const { testConnection } = require('./config/database')
 
