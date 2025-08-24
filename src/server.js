@@ -35,7 +35,7 @@ app.use(limiter)
 // CORS - Configuración para desarrollo local y acceso móvil
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://tudominio.com'] 
+    ? ['https://savadev.com.mx']
     : function (origin, callback) {
         // Permitir requests sin origin (ej: aplicaciones móviles)
         if (!origin) return callback(null, true)
