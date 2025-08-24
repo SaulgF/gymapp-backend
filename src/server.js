@@ -17,6 +17,8 @@ const entrenamientosRoutes = require('./routes/entrenamientos')
 const entrenamientoDetallesRoutes = require('./routes/entrenamiento-detalles')
 
 const app = express()
+// Permitir proxy (Railway)
+app.set('trust proxy', 1)
 const PORT = process.env.PORT || 3001
 
 // Middlewares de seguridad
