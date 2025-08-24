@@ -43,13 +43,24 @@ const IniciarEntrenamiento = () => {
       }, 1000)
     } else if (timeLeft === 0 && timerActive) {
       setTimerActive(false)
-      // Notificación cuando el timer termina
+      // Notificación local cuando el timer termina
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('¡Descanso terminado!', {
           body: 'Es hora de continuar con el siguiente set',
           icon: '/vite.svg'
         })
       }
+      // Notificación push (PWA/iPhone)
+      (async () => {
+        try {
+          await api.post('/push/notify', {
+            title: '¡Descanso terminado!',
+            body: 'Es hora de continuar con tu siguiente ejercicio.'
+          });
+        } catch (err) {
+          console.error('Error enviando push:', err);
+        }
+      })();
       // Vibración en móviles
       if ('vibrate' in navigator) {
         navigator.vibrate([200, 100, 200])

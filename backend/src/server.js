@@ -15,6 +15,7 @@ const rutinasRoutes = require('./routes/rutinas')
 const ejerciciosRoutes = require('./routes/ejercicios')
 const entrenamientosRoutes = require('./routes/entrenamientos')
 const entrenamientoDetallesRoutes = require('./routes/entrenamiento-detalles')
+const pushRoutes = require('./routes/push')
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -85,6 +86,7 @@ app.use('/api/rutinas', rutinasRoutes)
 app.use('/api/ejercicios', ejerciciosRoutes)
 app.use('/api/entrenamientos', entrenamientosRoutes)
 app.use('/api/entrenamiento-detalles', entrenamientoDetallesRoutes)
+app.use('/api/push', pushRoutes)
 
 // Ruta de salud
 app.get('/api/health', (req, res) => {

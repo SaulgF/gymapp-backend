@@ -25,7 +25,39 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchDashboardData()
+    // Solicitar permiso y suscribir a push al cargar el dashboard
+    subscribeUserToPush();
   }, [])
+
+  // Suscripción push
+  const subscribeUserToPush = async () => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const subscription = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: 'BIxX7RXtPdPDWZN6dOVKxzZGGHkn98ODZ2W4-cgL0IpXT3zbaNLLZwq5dM5lTv9b877zaE0mq5xkGz9947mWBNI' // Reemplaza por tu clave pública VAPID
+        });
+        await api.post('/push/subscribe', subscription);
+        console.log('Suscripción push exitosa');
+      } catch (err) {
+        console.error('Error en suscripción push:', err);
+      }
+    }
+  };
+
+  // Ejemplo: disparar notificación push (llama a este método cuando termine el contador de descanso)
+  const sendPushNotification = async () => {
+    try {
+      await api.post('/push/notify', {
+        title: '¡Descanso terminado!',
+        body: 'Es hora de continuar con tu siguiente ejercicio.'
+      });
+      console.log('Notificación push enviada');
+    } catch (err) {
+      console.error('Error enviando push:', err);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -33,7 +65,6 @@ const Dashboard = () => {
         api.get('/dashboard/stats'),
         api.get('/dashboard/recent-workouts')
       ])
-      
       setStats(statsResponse.data)
       setRecentWorkouts(workoutsResponse.data)
     } catch (error) {
