@@ -2,12 +2,21 @@
 let timerInterval = null;
 let timerEndTime = null;
 
+console.log('Service Worker cargado');
+
 self.addEventListener('message', function(event) {
+  console.log('Service Worker recibió mensaje:', event.data);
+  
   if (event.data.action === 'startTimer') {
     const duration = event.data.duration; // en segundos
+    console.log('Iniciando timer por', duration, 'segundos');
+    
     timerEndTime = Date.now() + (duration * 1000);
     
-    if (timerInterval) clearInterval(timerInterval);
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      console.log('Timer anterior detenido');
+    }
     
     timerInterval = setInterval(() => {
       const now = Date.now();
@@ -27,6 +36,7 @@ self.addEventListener('message', function(event) {
       if (timeLeft === 0) {
         clearInterval(timerInterval);
         timerInterval = null;
+        console.log('Timer terminado');
         
         // Mostrar notificación
         self.registration.showNotification('¡Descanso terminado!', {
@@ -34,7 +44,8 @@ self.addEventListener('message', function(event) {
           icon: '/gym/icons/icon-192x192.svg',
           badge: '/gym/icons/icon-72x72.svg',
           tag: 'timer-finished',
-          requireInteraction: true
+          requireInteraction: true,
+          vibrate: [200, 100, 200]
         });
         
         // Notificar al frontend que terminó
@@ -50,6 +61,7 @@ self.addEventListener('message', function(event) {
   }
   
   if (event.data.action === 'stopTimer') {
+    console.log('Deteniendo timer');
     if (timerInterval) {
       clearInterval(timerInterval);
       timerInterval = null;

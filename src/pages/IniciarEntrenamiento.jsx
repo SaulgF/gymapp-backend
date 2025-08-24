@@ -99,21 +99,43 @@ const IniciarEntrenamiento = () => {
     // Ya no necesitamos este interval, el service worker maneja el timer
     return () => {
       // Detener timer en service worker al desmontar
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({
-          action: 'stopTimer'
-        });
-      }
+      stopServiceWorkerTimer()
     }
   }, [])
 
   // Función para iniciar timer en service worker
-  const startServiceWorkerTimer = (seconds) => {
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        action: 'startTimer',
-        duration: seconds
-      });
+  const startServiceWorkerTimer = async (seconds) => {
+    if ('serviceWorker' in navigator) {
+      try {
+        // Esperar a que el service worker esté listo
+        const registration = await navigator.serviceWorker.ready;
+        if (registration.active) {
+          registration.active.postMessage({
+            action: 'startTimer',
+            duration: seconds
+          });
+          console.log('Timer iniciado en service worker:', seconds, 'segundos');
+        }
+      } catch (error) {
+        console.error('Error comunicando con service worker:', error);
+      }
+    }
+  }
+
+  // Función para detener timer en service worker
+  const stopServiceWorkerTimer = async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        if (registration.active) {
+          registration.active.postMessage({
+            action: 'stopTimer'
+          });
+          console.log('Timer detenido en service worker');
+        }
+      } catch (error) {
+        console.error('Error deteniendo timer en service worker:', error);
+      }
     }
   }
 
@@ -185,11 +207,7 @@ const IniciarEntrenamiento = () => {
   const pauseTimer = () => {
     setTimerActive(false)
     // Detener timer en service worker
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        action: 'stopTimer'
-      });
-    }
+    stopServiceWorkerTimer()
   }
 
   const resetTimer = () => {
@@ -197,11 +215,7 @@ const IniciarEntrenamiento = () => {
     setTimeLeft(0)
     setInitialTime(0) // Reset tiempo inicial
     // Detener timer en service worker
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        action: 'stopTimer'
-      });
-    }
+    stopServiceWorkerTimer()
   }
 
   const handleCompletarSerie = async () => {
