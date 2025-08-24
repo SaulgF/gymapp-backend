@@ -99,8 +99,8 @@ const getEntrenamientoById = async (req, res) => {
 const createEntrenamiento = async (req, res) => {
   try {
   const { rutina_id, fecha_inicio } = req.body
-  // Formatear fecha_inicio como YYYY-MM-DD para MySQL DATE
-  const fechaMysql = fecha_inicio ? new Date(fecha_inicio).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
+  // Usar solo YYYY-MM-DD del string recibido para MySQL DATE
+  const fechaMysql = fecha_inicio ? fecha_inicio.slice(0, 10) : new Date().toISOString().slice(0, 10);
     const userId = req.user.id
 
     console.log('Creating entrenamiento with:', { rutina_id, fecha_inicio, userId })
