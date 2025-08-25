@@ -69,15 +69,18 @@ const IniciarEntrenamiento = () => {
   // Escuchar mensajes del service worker
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', (event) => {
+      const handleMessage = (event) => {
+        console.log('Frontend recibió mensaje del SW:', event.data);
         if (event.data.action === 'timerUpdate') {
-          setTimeLeft(event.data.timeLeft)
+          setTimeLeft(event.data.timeLeft);
+          console.log('Tiempo actualizado:', event.data.timeLeft);
         }
         if (event.data.action === 'timerFinished') {
-          setTimerActive(false)
+          setTimerActive(false);
+          console.log('Timer terminado - frontend notificado');
           // Vibración en móviles
           if ('vibrate' in navigator) {
-            navigator.vibrate([200, 100, 200])
+            navigator.vibrate([200, 100, 200]);
           }
           // Enviar notificación push adicional
           (async () => {
@@ -91,7 +94,13 @@ const IniciarEntrenamiento = () => {
             }
           })();
         }
-      })
+      };
+      
+      navigator.serviceWorker.addEventListener('message', handleMessage);
+      
+      return () => {
+        navigator.serviceWorker.removeEventListener('message', handleMessage);
+      };
     }
   }, [])
 
@@ -112,9 +121,10 @@ const IniciarEntrenamiento = () => {
         if (registration.active) {
           registration.active.postMessage({
             action: 'startTimer',
-            duration: seconds
+            duration: seconds,
+            rutinaId: id // Pasar el ID de la rutina
           });
-          console.log('Timer iniciado en service worker:', seconds, 'segundos');
+          console.log('Timer iniciado en service worker:', seconds, 'segundos para rutina', id);
         }
       } catch (error) {
         console.error('Error comunicando con service worker:', error);

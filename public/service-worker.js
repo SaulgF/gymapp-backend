@@ -9,7 +9,8 @@ self.addEventListener('message', function(event) {
   
   if (event.data.action === 'startTimer') {
     const duration = event.data.duration; // en segundos
-    console.log('Iniciando timer por', duration, 'segundos');
+    const rutinaId = event.data.rutinaId; // ID de la rutina actual
+    console.log('Iniciando timer por', duration, 'segundos para rutina', rutinaId);
     
     timerEndTime = Date.now() + (duration * 1000);
     
@@ -38,14 +39,18 @@ self.addEventListener('message', function(event) {
         timerInterval = null;
         console.log('Timer terminado');
         
-        // Mostrar notificación
+        // Mostrar notificación con datos para abrir la app
         self.registration.showNotification('¡Descanso terminado!', {
           body: 'Es hora de continuar con tu siguiente ejercicio.',
           icon: '/gym/icons/icon-192x192.svg',
           badge: '/gym/icons/icon-72x72.svg',
           tag: 'timer-finished',
           requireInteraction: true,
-          vibrate: [200, 100, 200]
+          vibrate: [200, 100, 200],
+          data: {
+            rutinaId: rutinaId,
+            url: `/gym/entrenamientos/${rutinaId}`
+          }
         });
         
         // Notificar al frontend que terminó
@@ -81,8 +86,29 @@ self.addEventListener('push', function(event) {
 });
 
 self.addEventListener('notificationclick', function(event) {
+  console.log('Notificación clickeada:', event.notification.data);
   event.notification.close();
+  
+  // Obtener URL desde los datos de la notificación
+  const urlToOpen = event.notification.data?.url || '/gym/';
+  
   event.waitUntil(
-    clients.openWindow('/gym/')
+    clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true
+    }).then(function(clientList) {
+      // Si ya hay una ventana abierta, enfocarla y navegar
+      for (let i = 0; i < clientList.length; i++) {
+        const client = clientList[i];
+        if (client.url.includes('/gym/') && 'focus' in client) {
+          client.navigate(urlToOpen);
+          return client.focus();
+        }
+      }
+      // Si no hay ventana abierta, abrir una nueva
+      if (clients.openWindow) {
+        return clients.openWindow(urlToOpen);
+      }
+    })
   );
 });
